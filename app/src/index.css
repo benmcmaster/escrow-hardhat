@@ -1,9 +1,9 @@
 body {
   background-color: #eee;
-  display: flex;
   font-family: 'Muli', sans-serif;
+  margin: 0;
 }
-
+/* 
 .contract, .existing-contracts {
   margin: 20px;
   display: inline-block;
@@ -67,4 +67,4 @@ input[type="text"] {
 .existing-contract .complete {
   color: #5aa75a;
   text-align: center;
-}
+} */
