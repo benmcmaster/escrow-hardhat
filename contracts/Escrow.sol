@@ -9,6 +9,8 @@ contract Escrow {
 	bool public isApproved;
 	bool public isRejected;
 
+	string public status = "none";
+
 	constructor(address _arbiter, address _beneficiary) payable {
 		arbiter = _arbiter;
 		beneficiary = _beneficiary;
@@ -23,6 +25,7 @@ contract Escrow {
  		require(sent, "Failed to send Ether to beneficiary");
 		emit Approved(balance);
 		isApproved = true;
+		status = "approved";
 	}
 	event Rejected(uint);
 	function reject() external {
@@ -32,5 +35,6 @@ contract Escrow {
  		require(sent, "Failed to send Ether to depositor");
 		emit Rejected(balance);
 		isRejected = true;
+		status = "rejected";
 	}
 }

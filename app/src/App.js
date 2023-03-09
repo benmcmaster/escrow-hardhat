@@ -15,7 +15,7 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import LoadingButton from '@mui/lab/LoadingButton';
-import SendIcon from '@mui/icons-material/Send'; 
+import SendIcon from '@mui/icons-material/Send';
 
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 
@@ -51,6 +51,7 @@ function App() {
   })
 
   useEffect(() => {
+    console.log("App: useEffect: account: ", account);
     async function getAccounts() {
       const accounts = await provider.send('eth_requestAccounts', []);
 
@@ -62,15 +63,18 @@ function App() {
     }
 
     function getEscrows() {
+      console.log("App: getEscrows: ");
       //const escrows = JSON.parse(localStorage.getItem('escrows')) || [];
-      fetch('http://localhost:3001/')
+      fetch(process.env.REACT_APP_SERVER_URL)
       .then(response => response.json())
-      .then(data => console.log("Data: ", data));
-      //setEscrows(escrows);
+      .then(data => {
+        setEscrows(data);
+      });
     }
+
     getEscrows();
     getAccounts();
-    
+
   }, [account]);
 
   async function newContract() {
@@ -92,8 +96,9 @@ function App() {
         beneficiary,
         value: value.toString(),
       };
-
+      saveEscrowContract(escrow);
       setEscrows([...escrows, escrow]);
+
     } catch (e) {
       console.error("Caught error when deploying contract: ", e);
     }
@@ -101,8 +106,19 @@ function App() {
     setOpen(false);
   }
 
+  async function saveEscrowContract({id, address, depositor, arbiter, beneficiary, value}) {
+    const response = await fetch(process.env.REACT_APP_SERVER_URL + "/contracts", {
+      method: 'POST', 
+      mode: 'cors', 
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({id, address, depositor, arbiter, beneficiary, value, decision: "none"}),
+    })
+    const responseJson = await response.json();
+    console.log(responseJson);
+  }
+
   return (
-    <Container 
+    <Container
       maxWidth="false"
       sx={{
         backgroundImage: "linear-gradient(to right top, #051937, #004d7a, #008793, #00bf72, #a8eb12)",
@@ -113,7 +129,7 @@ function App() {
         padding: "50px",
       }}>
       <Container maxWidth="md">
-        <Typography id="modal-modal-title" variant="h6" component="h2" 
+        <Typography id="modal-modal-title" variant="h6" component="h2"
           sx={{
             position: "relative",
             float: "left",
@@ -122,14 +138,14 @@ function App() {
           }}>
           Escrow Contracts
         </Typography>
-        <Button variant="contained" 
+        <Button variant="contained"
           onClick={handleOpen}
           sx={{
             position: "relative",
             float: "right",
             margin: "8px 0px 8px 0px",
           }}>
-          
+
           Add Contract
         </Button>
         <Modal
@@ -177,13 +193,13 @@ function App() {
             </TableHead>
             <TableBody>
               {escrows.map((escrow, index) => {
-                return <Escrow key={escrow.address} signer={signer} signerAddress={signerAddress} {...escrow}/>;
+                return <Escrow key={escrow.id} signer={signer} signerAddress={signerAddress} {...escrow} />;
               })}
             </TableBody>
           </Table>
         </TableContainer>
       </Container>
-    </Container>  
+    </Container>
   );
 }
 
