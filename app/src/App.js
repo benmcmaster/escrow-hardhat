@@ -161,6 +161,11 @@ function App() {
 
   useEffect(() => {
     console.log("App: useEffect: ");
+    async function getAccounts() {
+      const accounts = await provider.send('eth_requestAccounts', []);
+      console.log("App: getAccounts: accounts: ", accounts);
+    }
+
     async function getEscrows() {
       console.log("App: getEscrows: fetching from: ", process.env.REACT_APP_SERVER_URL);
       const response = await fetch(process.env.REACT_APP_SERVER_URL);
@@ -174,8 +179,8 @@ function App() {
       setEscrows([...escrows]);
     }
 
+    getAccounts();
     getAndSetSignerAddress();
-
     getEscrows();
 
   }, []);
