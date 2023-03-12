@@ -6,9 +6,6 @@ contract Escrow {
 	address public beneficiary;
 	address public depositor;
 
-	bool public isApproved;
-	bool public isRejected;
-
 	string public status = "none";
 
 	constructor(address _arbiter, address _beneficiary) payable {
@@ -24,7 +21,6 @@ contract Escrow {
 		(bool sent, ) = payable(beneficiary).call{value: balance}("");
  		require(sent, "Failed to send Ether to beneficiary");
 		emit Approved(balance);
-		isApproved = true;
 		status = "approved";
 	}
 	event Rejected(uint);
@@ -34,7 +30,6 @@ contract Escrow {
 		(bool sent, ) = payable(depositor).call{value: balance}("");
  		require(sent, "Failed to send Ether to depositor");
 		emit Rejected(balance);
-		isRejected = true;
 		status = "rejected";
 	}
 }

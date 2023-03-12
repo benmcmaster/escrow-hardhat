@@ -8,6 +8,7 @@ const app = express()
 const port = process.env.PORT || 3001
 
 const connection = mysql.createConnection(process.env.DATABASE_URL)
+console.log('Connecting to PlanetScale...', process.env.DATABASE_URL);
 console.log('Connected to PlanetScale!')
 //connection.end()
 
@@ -45,15 +46,19 @@ app.post('/contracts', (req, res) => {
     );
 });
 
-app.put('/contracts/:id', (req, res) => {
-    console.log("/contracts/:id req.body: ", req.body);
-    const id = req.params.id;
+app.put('/contracts/:address', (req, res) => {
+    console.log("/contracts/:address req.body: ", req.body);
+    const address = req.params.address;
     const decision = req.body.decision;
 
     // Update the decision column in contracts table
-    connection.query('UPDATE contracts SET decision = ? WHERE id = ?', [decision, id], (error, results, fields) => {
-        if (error) throw error;
-        res.send({error: 'Decision updated successfully.'});
+    connection.query('UPDATE contracts SET decision = ? WHERE address = ?', [decision, address], (error, results, fields) => {
+        if (error) {
+            console.error(error);
+            res.status(500).send({error: 'Internal server error'});
+        } else {
+            res.status(200).send({message: 'Decision updated successfully.'});
+        }
     });
 });
 
