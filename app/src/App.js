@@ -162,6 +162,7 @@ function App() {
   useEffect(() => {
     console.log("App: useEffect: ");
     async function getEscrows() {
+      console.log("App: getEscrows: fetching from: ", process.env.REACT_APP_SERVER_URL);
       const response = await fetch(process.env.REACT_APP_SERVER_URL);
       let escrows = await response.json();
       console.log("App: getEscrows: ", escrows);
