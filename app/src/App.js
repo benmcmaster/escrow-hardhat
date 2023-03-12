@@ -227,12 +227,13 @@ function App() {
   async function newContract() {
     const beneficiary = document.getElementById('beneficiary').value;
     const arbiter = document.getElementById('arbiter').value;
-    const value = ethers.BigNumber.from(document.getElementById('wei').value);
+    const ethValue = document.getElementById('eth').value;
+    const weiValue = ethers.utils.parseEther(ethValue.toString());
 
     // Try to deploy the contract
     try {
       const signer = provider.getSigner();
-      const escrowContract = await deploy(signer, arbiter, beneficiary, value);
+      const escrowContract = await deploy(signer, arbiter, beneficiary, weiValue);
       const depositor = await signer.getAddress();
 
       const escrow = {
@@ -240,7 +241,7 @@ function App() {
         depositor,
         arbiter,
         beneficiary,
-        value: value.toString(),
+        value: weiValue.toString(),
         decision: "none",
         handleApproveClick, 
         handleRejectClick,
@@ -298,7 +299,7 @@ function App() {
             </Typography>
             <TextField fullWidth={true} sx={modalFormStyle} id="arbiter" label="Arbiter Address" variant="standard" />
             <TextField fullWidth={true} sx={modalFormStyle} id="beneficiary" label="Beneficiary Address" variant="standard" />
-            <TextField fullWidth={true} sx={modalFormStyle} id="wei" label="Deposit Amount (in Wei)" variant="standard" />
+            <TextField fullWidth={true} sx={modalFormStyle} id="eth" label="Deposit Amount (in ETH)" variant="standard" />
             <LoadingButton
               size="small"
               sx={modalFormStyle}
@@ -325,7 +326,7 @@ function App() {
                 <TableCell align="left">Contract</TableCell>
                 <TableCell align="left">Arbiter</TableCell>
                 <TableCell align="left">Beneficiary</TableCell>
-                <TableCell align="left">Value</TableCell>
+                <TableCell align="left">Value (ETH)</TableCell>
                 <TableCell align="right">Approve/Reject</TableCell>
               </TableRow>
             </TableHead>
