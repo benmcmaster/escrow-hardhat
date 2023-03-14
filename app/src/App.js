@@ -344,15 +344,55 @@ function App() {
                 <TableRow
                   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                 >
-                  <TableCell align="center" colSpan={5}>
+                  <TableCell align="center">
                     <Skeleton animation="wave" />
+                  </TableCell>
+                  <TableCell align="center">
                     <Skeleton animation="wave" />
+                  </TableCell>
+                  <TableCell align="center">
+                    <Skeleton animation="wave" />
+                  </TableCell>
+                  <TableCell align="center">
+                    <Skeleton animation="wave" />
+                  </TableCell>
+                  <TableCell align="center">
+                    <Skeleton animation="wave" />
+                  </TableCell>
+                </TableRow>
+                <TableRow
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell align="center">
+                    <Skeleton animation="wave" />
+                  </TableCell>
+                  <TableCell align="center">
+                    <Skeleton animation="wave" />
+                  </TableCell>
+                  <TableCell align="center">
+                    <Skeleton animation="wave" />
+                  </TableCell>
+                  <TableCell align="center">
+                    <Skeleton animation="wave" />
+                  </TableCell>
+                  <TableCell align="center">
                     <Skeleton animation="wave" />
                   </TableCell>
                 </TableRow>
               </TableBody>
             }
-            {!loadingEscrows &&
+            {!loadingEscrows && escrows.length === 0 &&
+              <TableBody>
+              <TableRow
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell align="center" colSpan={5}>
+                  No contracts yet. Add a contract!
+                </TableCell>
+              </TableRow>
+            </TableBody>
+            } 
+            {!loadingEscrows && escrows.length > 0 &&
               <TableBody>
                 {escrows.map((escrow, index) => {
                   return <Escrow key={escrow.address} signerAddress={signerAddress} {...escrow} />;
