@@ -89,7 +89,7 @@ export default function Escrow({
         loading={true}
         loadingPosition="end"
         variant="contained"
-      >
+        >
           <span>Rejecting</span>
         </LoadingButton>
       }

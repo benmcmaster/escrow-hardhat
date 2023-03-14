@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import useState from 'react-usestateref'
 import deploy from './deploy';
 import Escrow from './Escrow';
-import { Button, Container } from '@mui/material';
+import { Button, Container, Skeleton } from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -99,10 +99,10 @@ export async function reject(escrowContract, signer) {
 
 async function saveContractDecision(address, decision) {
   const response = await fetch(process.env.REACT_APP_SERVER_URL + "/contracts/" + address, {
-    method: 'PUT', 
-    mode: 'cors', 
+    method: 'PUT',
+    mode: 'cors',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({decision}),
+    body: JSON.stringify({ decision }),
   })
   const responseJson = await response.json();
   console.log("saveContractDecision: responseJson: ", responseJson);
@@ -127,12 +127,12 @@ function getContractFromAddress(address, provider) {
 //   }
 // }
 
-async function saveEscrowContract({address, depositor, arbiter, beneficiary, value}) {
+async function saveEscrowContract({ address, depositor, arbiter, beneficiary, value }) {
   const response = await fetch(process.env.REACT_APP_SERVER_URL + "/contracts", {
-    method: 'POST', 
-    mode: 'cors', 
+    method: 'POST',
+    mode: 'cors',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({address, depositor, arbiter, beneficiary, value, decision: "none"}),
+    body: JSON.stringify({ address, depositor, arbiter, beneficiary, value, decision: "none" }),
   })
   const responseJson = await response.json();
   console.log(responseJson);
@@ -145,6 +145,7 @@ function App() {
   const [signerAddress, setSignerAddress] = useState();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingEscrows, setLoadingEscrows] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -167,6 +168,7 @@ function App() {
     }
 
     async function getEscrows() {
+      setLoadingEscrows(true);
       console.log("App: getEscrows: fetching from: ", process.env.REACT_APP_SERVER_URL);
       const response = await fetch(process.env.REACT_APP_SERVER_URL);
       let escrows = await response.json();
@@ -177,6 +179,7 @@ function App() {
         return escrow;
       });
       setEscrows([...escrows]);
+      setLoadingEscrows(false);
     }
 
     getAccounts();
@@ -199,7 +202,7 @@ function App() {
     console.log("handleApproveClick: escrow: ", escrow);
     escrow.decision = "approving";
     setEscrows([...escrowsCopy]);
-  
+
     try {
       await approve(escrowContract, signer);
       escrow.decision = "approved";
@@ -210,7 +213,7 @@ function App() {
     saveContractDecision(address, escrow.decision);
     setEscrows([...escrowsCopy]);
   }
-  
+
   async function handleRejectClick(address) {
     const escrowContract = getContractFromAddress(address, provider);
     const signer = provider.getSigner();
@@ -218,7 +221,7 @@ function App() {
     const escrow = escrowsCopy.find(escrow => escrow.address === address);
     escrow.decision = "rejecting";
     setEscrows([...escrowsCopy]);
-    
+
     try {
       await reject(escrowContract, signer);
       escrow.decision = "rejected";
@@ -249,7 +252,7 @@ function App() {
         beneficiary,
         value: weiValue.toString(),
         decision: "none",
-        handleApproveClick, 
+        handleApproveClick,
         handleRejectClick,
       };
       saveEscrowContract(escrow);
@@ -336,11 +339,26 @@ function App() {
                 <TableCell align="right">Approve/Reject</TableCell>
               </TableRow>
             </TableHead>
-            <TableBody>
-              {escrows.map((escrow, index) => {
-                return <Escrow key={escrow.address} signerAddress={signerAddress} {...escrow} />;
-              })}
-            </TableBody>
+            {loadingEscrows &&
+              <TableBody>
+                <TableRow
+                  sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                >
+                  <TableCell align="center" colSpan={5}>
+                    <Skeleton animation="wave" />
+                    <Skeleton animation="wave" />
+                    <Skeleton animation="wave" />
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            }
+            {!loadingEscrows &&
+              <TableBody>
+                {escrows.map((escrow, index) => {
+                  return <Escrow key={escrow.address} signerAddress={signerAddress} {...escrow} />;
+                })}
+              </TableBody>
+            }
           </Table>
         </TableContainer>
       </Container>
